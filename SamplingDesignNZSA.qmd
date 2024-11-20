@@ -7,6 +7,8 @@ revealjs:
   backgroundColor: "#2d3e50"  # Set a custom background color
   width: 1024              # Set slide width
   height: 768              # Set slide height
+  fig.path: "/Users/criv292/Uni of Auckland Dropbox/CRR-DropBox/Talks & Short courses/NZSA2024/"
+
 ---
 
 ## Sampling small older populations:
@@ -28,15 +30,12 @@ NZSA2024
 ![Image](CHCpic.png)
 
 # Slide 4: Code Block
+ 
 
-```{}
-```
-
-```{r}
+```{r }
 # Interactive plot with Plotly
 library(plotly)
-
-plot_ly(
+ plot_ly(
   x = c(1, 2, 3, 4),
   y = c(10, 11, 12, 13),
   type = 'scatter',
@@ -50,7 +49,7 @@ arduino
 
 # Slide 1
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE }
 dire <- '/Volumes/research/resmed202400103-idea-data/' 
 library(tidyverse)
 library(sf)
@@ -162,12 +161,12 @@ p4 <- ggplot(sum_sampling_m, aes(x = study_month, group = Ethnic_IDEA)) +
 library(plotly)
 ```
 
-```{r}
+```{r }
 p3
 ```
 
 # Slide 2
 
-```{r}
+```{r }
 p4
 ```
