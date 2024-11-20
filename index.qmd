@@ -1,0 +1,172 @@
+---
+format: revealjs
+revealjs:
+  theme: night            # Dark theme (alternatives: solarized, beige, etc.)
+  transition: fade        # Slide transition (alternatives: slide, convex, etc.)
+  slideNumber: true       # Show slide numbers
+  backgroundColor: "#2d3e50"  # Set a custom background color
+  width: 1024              # Set slide width
+  height: 768              # Set slide height
+  fig.path: "/Users/criv292/Uni of Auckland Dropbox/CRR-DropBox/Talks & Short courses/NZSA2024/"
+
+---
+
+## Sampling small older populations:
+
+### Methods and challenges of a dementia prevalence study
+
+*Claudia Rivera-Rodriguez, PhD*
+
+NZSA2024
+
+![](logo.png){fig-align="center" width="538"}
+
+# IDEA: Aims
+
+-   Establish the true current and future prevalence of dementia in NZ, & disparities
+
+# Slide 3: Adding an Image
+
+![Image](CHCpic.png)
+
+# Slide 4: Code Block
+ 
+
+```{r }
+# Interactive plot with Plotly
+library(plotly)
+ plot_ly(
+  x = c(1, 2, 3, 4),
+  y = c(10, 11, 12, 13),
+  type = 'scatter',
+  mode = 'lines+markers'
+)
+```
+
+```         
+arduino
+```
+
+# Slide 1
+
+```{r setup, include=FALSE }
+dire <- '/Volumes/research/resmed202400103-idea-data/' 
+library(tidyverse)
+library(sf)
+## reading files 
+df.mesh   <- read.csv(paste(dire, "Sample selection/Sample and Frame/Frame_Meshblocks_with_probabilities25-02-2024.csv", sep=''))
+df.area   <- read.csv(paste(dire,"Sample selection/Sample and Frame/Frame_Areas_with_probabilities25-02-2024.csv", sep=''))
+df.rep    <- read.csv(paste(dire,"Sample selection/Sample and Frame/ReplacementMeshblocksforSample_with_probabilities25-02-2024.csv", sep=''))
+df.mesh.s <- read.csv(paste(dire,"Sample selection/Sample and Frame/SampleMeshblocks_with_probabilities25-02-2024.csv", sep=''))
+df.area.s <- read.csv(paste(dire,"Sample selection/Sample and Frame/SampleAreas_with_probabilities25-02-2024.csv", sep=''))
+df.TA <-  st_read(paste(dire,'Sample selection/Data/sf_TA/territorial-authority-2022-generalised.shp'  , sep=''))
+df_redcap <-  read.csv(paste(dire,  "Data/Raw_data/REDcap_processed/df_all_processed_06-11-2024_weights_imputed.csv", sep=''))
+  
+
+df.area <- df.area |> mutate(SA22018_V1_00=as.character(SA22018_V1_00))
+
+
+df.TA_sf <- st_as_sf(df.TA,  wkt = "WKT" )
+st_crs(df.TA_sf)$epsg
+df.TA_sf <-st_transform(df.TA_sf, 4326) 
+## are geometr
+df.area.sf<- st_read(paste(dire,'Sample selection/Data/sf_area2/statistical-area-2-2018-generalised.shp' , sep='') ) 
+df.area.sf <- df.area.sf|> dplyr::mutate(SA22018_V1_00= SA22018_V1)  |>
+  filter( SA22018_V1_00 %in%  df.area$SA22018_V1_00)
+df.area.sf<-  left_join( df.area.sf,df.area , by='SA22018_V1_00') %>%filter(SA22018_V1_00%in%df.area$SA22018_V1_00)%>%dplyr::mutate(SA22018_V1_00=as.character(SA22018_V1_00)) 
+df.area.sf<- st_transform(df.area.sf, crs=4326)
+df.area.sf$ID  <-df.area.sf$SA22018_V1 
+
+df.area.sf <- df.area.sf %>%filter(!is.na(WKT) &!is.na(LATITUDE)&!is.na(LONGITUDE) )%>%  dplyr::mutate(SA22018_V1_00= SA22018_V1)  |>
+  filter( SA22018_V1_00 %in%  df.area$SA22018_V1_00)
+
+
+
+
+
+df.mesh.sf<-  st_read(paste(dire, 'Sample selection/Data/sf_mesh/meshblock-2018-generalised.shp'   , sep='') ) 
+df.mesh.sf <- df.mesh.sf|> dplyr::mutate( MB2018_V1_00 = stringr::str_replace(MB2018_V1_, '\\d+', function(m) sprintf('%07s', m)), MB2018_V1_00=paste('m',MB2018_V1_00, sep=''))  |>
+  filter( MB2018_V1_00 %in%  df.mesh$MB2018_V1_00)
+df.mesh.sf<-  left_join(df.mesh.sf,df.mesh, by='MB2018_V1_00')%>%filter(MB2018_V1_00%in%df.mesh$MB2018_V1_00) 
+df.mesh.sf     <-  st_transform(df.mesh.sf, crs=4326)
+df.mesh.sf$ID  <-  df.mesh.sf$mesh_area
+
+
+## finding the date of collection:
+
+library(dplyr)
+df_redcap <- df_redcap %>% dplyr::mutate( date_sampling= as.Date(date_screening), study_week= as.numeric(strftime(date_sampling, format = "%U"))-12, study_month= format(date_sampling, "%m"), Screened= case_when(in_sample==1~ 'Full Interviewed', in_sample==0~ 'Only Screened' ),
+                   Diagnosis= case_when(in_sample==1&dem1066_short==1~ 'Dementia', in_sample==1&dem1066_short==0~ 'No Dementia', in_sample==1 &is.na(dem1066_short) ~ 'No informant' , in_sample==0   ~ 'Only Screened', TRUE~ 'Only Screened'), 
+                   Diagnosis=  factor(Diagnosis, levels=c('Dementia','No Dementia', 'No informant', 'Only Screened')),
+                   Dementia = case_when(Diagnosis=='Dementia'~1, Diagnosis=='No Dementia'~0, TRUE~NA),
+                   Gender= case_when(psex==1~'Male', psex==2 ~ 'Female', TRUE~ NA ),Ethnicity0= as.character(ethnic), Ethnicity=  ethnic2 , Age= age_cat,
+                   LowScore=as.character(low_score), 
+                   existingID= !is.na(id) , 
+                   Ethnic_IDEA =  case_when(!is.na(ethnic3)~ethnic3,  is.na(ethnic3)~ 'Other'),
+                   Ethnic_P =  ethnic_prior  ) %>%filter(!is.na(study_month)&Ethnic_IDEA!='Other' )
+
+
+sum_sampling <- df_redcap %>% arrange(study_week, Ethnic_IDEA)%>% dplyr::group_by(study_week, Ethnic_IDEA) %>% dplyr::summarize(Screened= n(), Full_int = sum(in_sample))
+
+
+sum_sampling_m <- df_redcap %>% arrange(study_week, Ethnic_IDEA)%>%dplyr::group_by(study_month, Ethnic_IDEA) %>% dplyr::summarize(Screened= n(), Full_int = sum(in_sample))
+sum_sampling_m <- sum_sampling_m %>% dplyr::group_by(Ethnic_IDEA)%>% dplyr::mutate(Full_int_cum= cumsum(Full_int),Screened_cum= cumsum(Screened)  )
+
+
+
+library(ggplot2)
+ 
+
+p1<-ggplot(sum_sampling, aes(x=study_week, y=Screened, group=Ethnic_IDEA)) +
+  geom_line(aes(color=Ethnic_IDEA))+
+  geom_point(aes(color=Ethnic_IDEA))
+ 
+
+p2<-ggplot(sum_sampling, aes(x=study_week, y=Full_int, group=Ethnic_IDEA)) +
+  geom_line(aes(color=Ethnic_IDEA))+
+  geom_point(aes(color=Ethnic_IDEA))
+ 
+
+  
+## indian 425, pakeha 485, chinese: 410
+##  45	12 
+
+
+p3 <- ggplot(sum_sampling_m, aes(x = study_month, group = Ethnic_IDEA)) +
+  # Dotted line and points for Screened
+  geom_line(aes(y = Screened, color = Ethnic_IDEA, linetype = "Screened")) +
+  geom_point(aes(y = Screened, color = Ethnic_IDEA )) + 
+  # Solid line and points for Full_int
+  geom_line(aes(y = Full_int, color = Ethnic_IDEA, linetype = "Full Int")) +
+  geom_point(aes(y = Full_int, color = Ethnic_IDEA )) + 
+  labs(title = "Screened and sampled participants over time", 
+       x = "Month of study",
+       y = "Count")
+ 
+ 
+
+
+p4 <- ggplot(sum_sampling_m, aes(x = study_month, group = Ethnic_IDEA)) +
+  # Dotted line and points for Screened
+  geom_line(aes(y = Screened_cum, color = Ethnic_IDEA, linetype = "Screened")) +
+  geom_point(aes(y = Screened_cum, color = Ethnic_IDEA )) + 
+  # Solid line and points for Full_int
+  geom_line(aes(y = Full_int_cum, color = Ethnic_IDEA, linetype = "Full Int")) +
+  geom_point(aes(y = Full_int_cum, color = Ethnic_IDEA ))+ 
+  labs(title = "Screened and sampled participants over time", 
+       x = "Month of study",
+       y = "Cumulative Count")
+ 
+ 
+library(plotly)
+```
+
+```{r }
+p3
+```
+
+# Slide 2
+
+```{r }
+p4
+```
