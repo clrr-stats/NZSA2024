@@ -27,7 +27,7 @@ NZSA2024
 
 # Slide 3: Adding an Image
 
-![Image](CHCpic.png)
+![Image](/CHCpic.png)
 
 # Slide 4: Code Block
  
