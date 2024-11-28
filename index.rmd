@@ -287,7 +287,7 @@ digraph flow {
 # Sampling strategy
 
 ```{r, fig.align="center", fig.width=5, fig.height=3,echo=FALSE, message=FALSE, warning=FALSE }
-knitr::include_graphics("geo.jpg")
+knitr::include_graphics("geo.png")
 
 ```
  
@@ -303,17 +303,26 @@ knitr::include_graphics("geo.jpg")
 
 ![Image](sampling.png)
  
-- <span style="color:red">Phase 1</span>: 
+<span style="color:red">**Phase 1**</span>  
  
-  - Stratified by TA and rurality 
-  - Oversampling of   Chinese/Indian(65+) dense areas 
+- Stratified by TA and rurality 
+
+- Oversampling of   Chinese/Indian(65+) dense areas 
   
----
-- <span style="color:blue">Phase 2</span>:   
- - A proportion of meshblocks is sampled from each area selected at phase 1
- - Depends on the density of Chinese and Indian.
+--- 
  
-##   Phase 3
+
+<span style="color:blue">**Phase 2**</span>    
+
+- A proportion of meshblocks is sampled from each area selected at phase 1
+
+- Sampling of meshblocks is proportional to the density of Chinese and Indians. 
+
+ 
+ 
+--- 
+
+ Phase 3
 
 ![Image](phase3.png)  
  
@@ -335,7 +344,7 @@ p_simu
 We decided on a margin of error of about 0.03,
 
 
-# Phase 1: Areas 
+# Our design:  inclusion probabilities-areas
  
  
 ```{r , echo=FALSE, message=FALSE, warning=FALSE }
@@ -437,20 +446,29 @@ pc<- ggplot(df.area, aes(x = as.numeric(pik), y = as.numeric(Chinese65_2per), co
  
 ```
  
-# Cons 
+ 
+ 
+# Challenges   (So Far)
  
 
-- *Meshblocks with only businesses, not residential dwellings*: We will replace these with the closest meshblock (based on selection probability) from the same area.
+-  Meshblocks with only businesses, not residential dwellings: We  replace these with the closest meshblock (based on selection probability) from the same area.
 
-- *Door-knocking is expensive and difficult.*
+- Door-knocking is expensive and difficult. 
 
-- *Consent rates vary across ethnicities*: We will need to adjust for this.
+- Training of interviewers in 4 different languages 
 
-- *Data processing from questionnaires in four different languages.*
+- Consent rates vary across ethnicities: Sampling weights will need adjustment  for this.
+
+- Data processing from questionnaires in four different languages.
 
  
-#  Recruitment  over time
+#  How is the recruitment going?
 
 ```{r ,echo=FALSE, message=FALSE, warning=FALSE }
 p4
 ```
+
+# Thank you!
+
+
+
