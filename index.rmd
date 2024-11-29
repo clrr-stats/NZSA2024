@@ -21,42 +21,45 @@ output:
 
 *Claudia Rivera-Rodriguez, PhD*
 
-#  New Zealand changing population 
+# Dementia
 
-![Image 1](proj.png)   
+- Dementia is a term used to describe a group of symptoms affecting memory, thinking and social abilities.
+
+![Image 1](dem2.png)   
+
 
 # The need for a prevalence study
 
 ![Image 1](deloitte.png)  
 
 
+#  New Zealand changing population 
+
+![Image 1](proj.png)   
+
+
 # Feasibility study (2020)
 
 ![Image 1](fea.png)  
-
+ 
 - Demonstrated that a prevalence study was feasible in **Māori**, **Chinese**, **Indian** and **Pākehā** 
  
 - We found that the sampling/doorknocking strategy  was reasonable 
 
 - We were able to train up  multi-ethnic  interviewers 
+ 
+ 
 
-- Response rate  at the door-knocking stage was 75%  but at subsequent stages was about 25% 
+# ![Image 1](logo2.png)   
 
-
-
-
-
-
-# IDEA Study 
 
 - **Aim**:  *Establish the true current prevalence of dementia in NZ*
 
-- Population:  Chinese, Indian and Pākehā  65yo+
+- Populations:  Chinese, Indian and Pākehā  65yo+
 
-- This talk presents the sampling design and lessons learned from the IDEA study
-
-
-- *There is separate  study for Māori(running at the moment too)*
+- This talk presents the sampling design and lessons learned from the IDEA study (so far)
+ 
+- *There is separate  study for Māori (running at the moment too)*
  
 
 
@@ -240,9 +243,8 @@ p4 <- ggplot(sum_sampling_m, aes(x = study_month, group = Ethnic_IDEA)) +
 
   
 
-library(plotly)
-```
-```{r, echo=FALSE, include=FALSE,  message=FALSE, warning=FALSE }
+library(plotly) 
+ 
 # Load the DiagrammeR package
 library(DiagrammeR)
 
@@ -278,76 +280,7 @@ digraph flow {
 # grViz(graph)
 
  
-
-# Render the diagram with horizontal layout
  
-
-```
-
-# Sampling strategy
-
-```{r, fig.align="center", fig.width=5, fig.height=3,echo=FALSE, message=FALSE, warning=FALSE }
-knitr::include_graphics("geo.png")
-
-```
- 
-
-## Frame: Territorial autorities
-
- 
-![Image 1](AKLCHC.png) 
-
-  
-   
-## Sampling phases
-
-![Image](sampling.png)
- 
-<span style="color:red">**Phase 1**</span>  
- 
-- Stratified by TA and rurality 
-
-- Oversampling of   Chinese/Indian(65+) dense areas 
-  
---- 
- 
-
-<span style="color:blue">**Phase 2**</span>    
-
-- A proportion of meshblocks is sampled from each area selected at phase 1
-
-- Sampling of meshblocks is proportional to the density of Chinese and Indians. 
-
- 
- 
---- 
-
- Phase 3
-
-![Image](phase3.png)  
- 
-## Sample sizes for each domain 
-
-- We run lots of simulations to identify   sensible   sample parameters:
-  ![Image](simu.png) 
-
-
-
-## Sample sizes for each domain 
-
- 
-```{r , echo=FALSE, message=FALSE, warning=FALSE }
-p_simu
-
-```
-
-We decided on a margin of error of about 0.03,
-
-
-# Our design:  inclusion probabilities-areas
- 
- 
-```{r , echo=FALSE, message=FALSE, warning=FALSE }
  library(ggmap)
  
 #the package below was installed from source through github: 
@@ -407,15 +340,42 @@ p   <-      ggplot()+geom_sf(data=df.TA_sf    )
 xlimTA <- ggplot_build(p)$layout$panel_scales_x[[1]]$range$range
   
 
-p2a <-     geom_sf( data = df.area.sf, aes(   fill=pik ,color = pik ))  
+p2a <-     geom_sf( data = df.area.sf, aes(   fill=pik   ))  
  
 
+p2a <- geom_sf(data = df.area.sf, aes(fill = pik))  
+
+p+p2a +    ggtitle('Selection probabilities of areas Canterbury') + ylim(ylimc) +xlim(xlimc) 
+ 
+
+rownames(df.area.sf) <- df.area.sf$SA22018__1
+
+df.area.sf$indian_mesh <- round(df.area.sf$Indian65_2/df.area.sf$TotalMesh)
+df.area.sf$chinese_mesh <- round(df.area.sf$Chinese65_2/df.area.sf$TotalMesh)
+df.area.sf$pakeha_mesh <- round(df.area.sf$European65/df.area.sf$TotalMesh)
+
+p_dense_ind <-     geom_sf( data = df.area.sf, aes(   fill=indian_mesh  ))  
+p_dense_chi <-     geom_sf( data = df.area.sf, aes(   fill=chinese_mesh   ))   
+p_dense_pak <-     geom_sf( data = df.area.sf, aes(   fill=pakeha_mesh    ))  
+ 
+  
+ 
+p_ind <-   p+p_dense_ind  +ggtitle('Indian 65yo+ population per meshblock') +ylim(ylima) +xlim(xlima) +
+   scale_fill_gradient(low = "white", high = "red")  
+p_chi <-  p+p_dense_chi  +ggtitle('Chinese 65yo+ population per meshblock') +ylim(ylima) +xlim(xlima) +
+   scale_fill_gradient(low = "white", high = "red")  
+p_pak <- p+p_dense_pak  +ggtitle('Pakeha 65yo+ population per meshblock') +ylim(ylima) +xlim(xlima) +
+   scale_fill_gradient(low = "white", high = "red")  
+
+p_dense <- ggpubr::ggarrange(p_pak, p_ind, ncol=2, labels=c( 'Pakeha 65yo+', 'Indian 65yo+'))
 
 p2_AKLCHC <- p+p2a  +ggtitle('Selection probabilities of areas AKL and CHC') +ylim(ylimac) +xlim(xlimac) 
 p2_AKL <- p+p2a  +ggtitle('Selection probabilities of areas Auckland') +ylim(ylima) +xlim(xlima) 
 p2_CHC <- p+p2a +    ggtitle('Selection probabilities of areas Canterbury') + ylim(ylimc) +xlim(xlimc) 
  
-ggpubr::ggarrange(p2_AKL, p2_CHC, ncol=2)
+
+
+
  
 ``` 
  
@@ -445,21 +405,106 @@ pc<- ggplot(df.area, aes(x = as.numeric(pik), y = as.numeric(Chinese65_2per), co
 #ggpubr::ggarrange(pb, pc, ncol=2)
  
 ```
- 
- 
- 
-# Challenges   (So Far)
+
+
+
+
+
+
+
+
+
+# Sampling strategy 
+
+
+ - We do not have a reliable frame of people 65yo+  
+
+ - Our Chinese and Indian populations are hard to find:
+
+
+```{r, fig.align="center", fig.width=6, fig.height=4.5,echo=FALSE, message=FALSE, warning=FALSE }
+p_pak
+```
+
+---
+
+```{r, fig.align="center", fig.width=6, fig.height=4.5,echo=FALSE, message=FALSE, warning=FALSE }
+ p_ind
+```
+
+## Aotearoa-NZ geography hierarchy
+
+
+```{r, fig.align="center", fig.width=6, fig.height=4,echo=FALSE, message=FALSE, warning=FALSE }
+knitr::include_graphics("geo.png")
+
+```
  
 
--  Meshblocks with only businesses, not residential dwellings: We  replace these with the closest meshblock (based on selection probability) from the same area.
+
+
+
+
+
+
+
+## Frame: Territorial autorities
+
+ Auckland + Christchurch Region (Christchurch City +Selwyn District+Waimakariri District ) 
+
+ 
+![Image 1](AKLCHC.png) 
+
+
+  
+   
+## Sampling phases
+
+![Image](sampling2.png)
+  
+ 
+## Sample sizes for each domain 
+
+- We wanted a design that would yield about the same margin of error for all ethnic groups (i.e. domains)
+
+- We run lots of simulations to identify   sensible   sample parameters:
+
+  ![Image](simu.png) 
+
+
+
+ 
+
+## Our design:  inclusion probabilities-areas
+ 
+ 
+```{r,echo=FALSE, message=FALSE, warning=FALSE }
+
+p2_AKL
+ggpubr::ggarrange(p2_AKL, p2_CHC, ncol=2)
+```
+ 
+---
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE }
+p2_CHC
+```
+  
+ 
+ 
+# ![Image](Cha.png)  (So Far)
+
+
+ - Commercial/Industrial meshblocks with non-residential dwellings: We replace these with the closest meshblock (based on selection probability) from the same area.
 
 - Door-knocking is expensive and difficult. 
 
 - Training of interviewers in 4 different languages 
 
-- Consent rates vary across ethnicities: Sampling weights will need adjustment  for this.
+- Consent rates vary across ethnicities: Sampling weights will need adjustment for this.
 
 - Data processing from questionnaires in four different languages.
+
 
  
 #  How is the recruitment going?
